@@ -1,10 +1,16 @@
-const puppeter = require('puppeteer');
-import { Browser } from 'puppeteer';
+import chromium from 'chrome-aws-lambda';
 
 export async function scrapeTestudoCourse(url: string) {
     if (!url) return;
 
-    const browser: Browser = await puppeter.launch({ args: ['--no-sandbox'], headless: true});
+    const browser = await chromium.puppeteer.launch({
+        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath,
+        headless: true,
+        ignoreHTTPSErrors: true,
+    });
+    
     const page = await browser.newPage();
     await page.goto(url);
 

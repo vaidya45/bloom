@@ -37,3 +37,6 @@ next-env.d.ts
 
 # Ignore .env file (check)
 .env
+
+# For puppeteer
+.cache

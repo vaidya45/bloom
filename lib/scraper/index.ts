@@ -1,17 +1,30 @@
-import chromium from 'chrome-aws-lambda';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
 
 export async function scrapeTestudoCourse(url: string) {
     if (!url) return;
 
-    const browser = await chromium.puppeteer.launch({
-        args: [...chromium.args, "--hide-scrollbars", "--disable-web-security"],
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath,
-        headless: true,
-        ignoreHTTPSErrors: true,
-    });
-    
+    let browser;
+
+    // Setting up browser
+    if (process.env.NODE_ENV !== 'development') {
+        const chromium = require('@sparticuz/chromium')
+        // Optional: If you'd like to disable webgl, true is the default.
+        chromium.setGraphicsMode = false
+        const puppeteer = require('puppeteer-core')
+        browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+        })
+    } else {
+        const puppeteer = require('puppeteer')
+        browser = await puppeteer.launch({headless: 'new'})
+    }
+
     const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080 });
     await page.goto(url);
 
     // Fetching data

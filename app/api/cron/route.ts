@@ -31,7 +31,7 @@ export async function GET() {
                 let updatedSections = currentCourse.sections.map((section: any) => {
 
                     // Find matching section by sectionId
-                    const matchingSection = courseData.sections.find(newSection => newSection.sectionId === section.sectionId);
+                    const matchingSection = courseData.sections.find((newSection: any) => newSection.sectionId === section.sectionId);
                     if (matchingSection) {
                         // Section exists, update waitlist, holdfile
                         section.waitlistHistory.push({ waitlistCount: matchingSection.waitlist, date: new Date() });
@@ -45,7 +45,7 @@ export async function GET() {
                 });
             
                 // Add new sections to the existing course
-                courseData.sections.forEach(newSection => {
+                courseData.sections.forEach((newSection: any) => {
                     const existingSection = currentCourse.sections.find((section: any) => section.sectionId === newSection.sectionId);
                     // Does not exist in the existing section
                     if (!existingSection) {

@@ -4,7 +4,7 @@ import { Browser } from 'puppeteer';
 export async function scrapeTestudoCourse(url: string) {
     if (!url) return;
 
-    const browser: Browser = await puppeter.launch({ headless: true});
+    const browser: Browser = await puppeter.launch({ args: ['--no-sandbox'], headless: true});
     const page = await browser.newPage();
     await page.goto(url);
 

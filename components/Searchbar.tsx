@@ -6,9 +6,19 @@ import { useRouter } from 'next/navigation';
 
 // client side rendering - since we need to handle submit
 
+const termMap = {
+    SPRING_SEMESTER: "01",
+    SUMMER_SEMESTER: "05",
+    FALL_SEMESTER: "08",
+    WINTER_SEMESTER: "12"
+};
+
+const CURRENT_TERM = termMap.SPRING_SEMESTER;
+const CURRENT_YEAR = "2024";
+
 function replaceCourseId(courseId: string): string {
     const REPLACE_VALUE = "REPLACE_VALUE";
-    const urlTemplate = `https://app.testudo.umd.edu/soc/search?courseId=${REPLACE_VALUE}&sectionId=&termId=202401&_openSectionsOnly=on&creditCompare=&credits=&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on`;
+    const urlTemplate = `https://app.testudo.umd.edu/soc/search?courseId=${REPLACE_VALUE}&sectionId=&termId=${CURRENT_YEAR + CURRENT_TERM}&_openSectionsOnly=on&creditCompare=&credits=&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on`;
 
     return urlTemplate.replace(REPLACE_VALUE, courseId);
 }
@@ -38,6 +48,23 @@ const isValidTestudoLink = (url: string) => {
     return false;
 }
 
+function checkTermId(url: string): boolean {
+    try {
+        const parsedURL = new URL(url);
+        const termId = parsedURL.searchParams.get('termId');
+        if (!termId) return false; // TermId not found in the URL
+
+        // Extract year and term from termId
+        const year = termId.slice(0, 4);
+        const term = termId.slice(4, 6);
+
+        // Check if extracted year and term match with CURRENT_YEAR and CURRENT_TERM
+        return year === CURRENT_YEAR && term === CURRENT_TERM;
+    } catch (error) {
+        return false;
+    }
+}
+
 const Searchbar = () => {
 
     const [searchPrompt, setSearchPrompt] = useState('');
@@ -62,6 +89,12 @@ const Searchbar = () => {
 
         if (isValidLink) {
             link = searchPrompt;
+
+            // Not from the current term
+            if (!checkTermId(link)) {
+                return alert("Please provide a link for the current term");
+            }
+
         } else {
             link = replaceCourseId(removeSpacesAndLowercase);
         }

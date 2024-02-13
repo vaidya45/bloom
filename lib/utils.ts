@@ -13,33 +13,33 @@ const Notification = {
 
 export const sendEmailForSections = async (
     course: any,
-    updatedSections: any,
-    prevSections: any
 ) => {
 
     // Traversing each updated section
-    for (const updatedSection of updatedSections) {
-
-        // Checking if this section is present in our previous data
-        const prevSection = prevSections.find((section: any) => section.sectionId === updatedSection.sectionId);
+    for (const updatedSection of course.sections) {
 
         let emailNotifType: keyof typeof Notification;
 
-        // Section is not present
-        if (!prevSection) {
-            emailNotifType = Notification.SECTION_DELETED as keyof typeof Notification;
-
+        if (updatedSection.waitlistHistory.length < 2) {
+            console.log("The course did not have sufficient waitlist history!");
+            continue;
+        } else if (updatedSection.openSeatHistory.length < 2) {
+            console.log("The course did not have sufficient open seat history!");
+            continue;
+        } else if (updatedSection.holdFileHistory.length < 2) {
+            console.log("The course did not have sufficient holdfile history!");
+            continue;
             // Waitlist was updated
         } else if (updatedSection.waitlistHistory[updatedSection.waitlistHistory.length - 1].waitlistCount !==
-            prevSection.waitlistHistory[prevSection.waitlistHistory.length - 1].waitlistCount) {
+            updatedSection.waitlistHistory[updatedSection.waitlistHistory.length - 2].waitlistCount) {
             emailNotifType = Notification.CHANGE_OF_WAITLIST as keyof typeof Notification;
             // Open Seat updated
         } else if (updatedSection.openSeatHistory[updatedSection.openSeatHistory.length - 1].openCount !==
-            prevSection.openSeatHistory[prevSection.openSeatHistory.length - 1].openCount) {
+            updatedSection.openSeatHistory[updatedSection.openSeatHistory.length - 2].openCount) {
             emailNotifType = Notification.CHANGE_OF_OPEN_SEAT as keyof typeof Notification;
             // Holdfile has updated
         } else if (updatedSection.holdFileHistory[updatedSection.holdFileHistory.length - 1].holdFileCount !==
-            prevSection.holdFileHistory[prevSection.holdFileHistory.length - 1].holdFileCount) {
+            updatedSection.holdFileHistory[updatedSection.holdFileHistory.length - 2].holdFileCount) {
             emailNotifType = Notification.CHANGE_OF_HOLDFILE as keyof typeof Notification;
         } else {
             // No changes, skip sending email

@@ -66,13 +66,12 @@ export async function GET() {
                     return matchingSection !== undefined; // Keep existing section if it's found in the scraped data
                 });
 
-                // I have two objects updatedSections and currentCourse.sections
-                // I need to compare what has changed (Getting status for email to send)
-                await sendEmailForSections(currentCourse, updatedSections, currentCourse.sections);
-
                 // Update the course document with the updated sections
                 currentCourse.sections = updatedSections;
                 await currentCourse.save();
+
+                // I need to compare what has changed based on the updated course information (Getting status for email to send)
+                await sendEmailForSections(currentCourse);
 
                 // This is the updated information for current course
                 return currentCourse;

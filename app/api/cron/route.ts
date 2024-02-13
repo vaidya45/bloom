@@ -14,7 +14,7 @@ export async function GET() {
 
         // Get all courses stored in database
         const courses = await Course.find({});
-        
+
         if (!courses) throw new Error("No Courses Found!");
 
         // 1. Scrape and update course information
@@ -23,7 +23,7 @@ export async function GET() {
                 const scrapedCourse = await scrapeTestudoCourse(currentCourse.link);
 
                 if (!scrapedCourse) throw new Error("No Course Found when scraping");
-                
+
                 // ONLY WORKING WITH FIRST ELEMENT IN THE ARRAY
                 let courseData = scrapedCourse[0];
 
@@ -43,7 +43,7 @@ export async function GET() {
                         return section;
                     }
                 });
-            
+
                 // Add new sections to the existing course
                 courseData.sections.forEach((newSection: any) => {
                     const existingSection = currentCourse.sections.find((section: any) => section.sectionId === newSection.sectionId);
@@ -68,12 +68,12 @@ export async function GET() {
 
                 // I have two objects updatedSections and currentCourse.sections
                 // I need to compare what has changed (Getting status for email to send)
-                sendEmailForSections(currentCourse, updatedSections, currentCourse.sections);
+                await sendEmailForSections(currentCourse, updatedSections, currentCourse.sections);
 
                 // Update the course document with the updated sections
                 currentCourse.sections = updatedSections;
                 await currentCourse.save();
-                
+
                 // This is the updated information for current course
                 return currentCourse;
             })

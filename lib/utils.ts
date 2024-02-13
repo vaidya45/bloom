@@ -24,25 +24,26 @@ export const sendEmailForSections = async (
         const prevSection = prevSections.find((section: any) => section.sectionId === updatedSection.sectionId);
 
         let emailNotifType: keyof typeof Notification;
-        
+
         // Section is not present
         if (!prevSection) {
             emailNotifType = Notification.SECTION_DELETED as keyof typeof Notification;
-        
-        // Waitlist was updated
+
+            // Waitlist was updated
         } else if (updatedSection.waitlistHistory[updatedSection.waitlistHistory.length - 1].waitlistCount !==
             prevSection.waitlistHistory[prevSection.waitlistHistory.length - 1].waitlistCount) {
             emailNotifType = Notification.CHANGE_OF_WAITLIST as keyof typeof Notification;
-        // Open Seat updated
+            // Open Seat updated
         } else if (updatedSection.openSeatHistory[updatedSection.openSeatHistory.length - 1].openCount !==
             prevSection.openSeatHistory[prevSection.openSeatHistory.length - 1].openCount) {
             emailNotifType = Notification.CHANGE_OF_OPEN_SEAT as keyof typeof Notification;
-        // Holdfile has updated
+            // Holdfile has updated
         } else if (updatedSection.holdFileHistory[updatedSection.holdFileHistory.length - 1].holdFileCount !==
             prevSection.holdFileHistory[prevSection.holdFileHistory.length - 1].holdFileCount) {
             emailNotifType = Notification.CHANGE_OF_HOLDFILE as keyof typeof Notification;
         } else {
             // No changes, skip sending email
+            console.log("No change was detected when making CRON request");
             continue;
         }
 

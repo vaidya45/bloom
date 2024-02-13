@@ -11,7 +11,7 @@ export async function scrapeAndStoreCourse(courseUrl: string) {
 
     try {
 
-        connectToDB(); 
+        connectToDB();
 
         // Get data from Testudo
         const scrapeCourse = await scrapeTestudoCourse(courseUrl);
@@ -23,7 +23,7 @@ export async function scrapeAndStoreCourse(courseUrl: string) {
         let courseData = scrapeCourse[0];
 
         const existingCourseData = await Course.findOne({ name: courseData.name });
-        
+
         // If data is already present
         if (existingCourseData) {
             // Iterate through sections array
@@ -41,7 +41,7 @@ export async function scrapeAndStoreCourse(courseUrl: string) {
                     return section;
                 }
             });
-        
+
             // Add new sections to the existing course
             courseData.sections.forEach((newSection: any) => {
                 const existingSection = existingCourseData.sections.find((section: any) => section.sectionId === newSection.sectionId);
@@ -63,7 +63,7 @@ export async function scrapeAndStoreCourse(courseUrl: string) {
                 const matchingSection = courseData.sections.find((newSection: any) => newSection.sectionId === section.sectionId);
                 return matchingSection !== undefined; // Keep existing section if it's found in the scraped data
             });
-        
+
             // Update the course document with the updated sections
             existingCourseData.sections = updatedSections;
             await existingCourseData.save();
@@ -88,7 +88,7 @@ export async function scrapeAndStoreCourse(courseUrl: string) {
         }
         return {
             name: courseData.name,
-            title:courseData.title
+            title: courseData.title
         }
 
     } catch (error: any) {
@@ -101,7 +101,7 @@ export async function getCourseByName(courseName: string) {
     try {
         connectToDB();
 
-        const course = await Course.findOne({name: courseName});
+        const course = await Course.findOne({ name: courseName });
 
         if (!course) return null;
 
@@ -126,7 +126,7 @@ export async function getAllCourses(courseName: string) {
 export async function addUserEmailToCourse(courseName: string, userEmail: string, sectionNumber: string) {
     try {
         const course = await getCourseByName(courseName);
-        
+
         if (!course) return;
 
         const sectionIndex = course.sections.findIndex((section: any) => section.sectionId === sectionNumber);
@@ -136,7 +136,7 @@ export async function addUserEmailToCourse(courseName: string, userEmail: string
 
         if (!userExists) {
             // Update the section with new user
-            (course.sections[sectionIndex]).users.push({email: userEmail});
+            (course.sections[sectionIndex]).users.push({ email: userEmail });
             await course.save();
 
             const courseInfo = {

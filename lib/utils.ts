@@ -56,8 +56,12 @@ export const sendEmailForSections = async (
             holdFileCount: updatedSection.holdFileHistory[updatedSection.holdFileHistory.length - 1].holdFileCount,
         };
 
-        const emailContent = await generateEmailBody(courseInfo, emailNotifType);
         const userEmails = updatedSection.users.map((user: any) => user.email);
-        await sendEmail(emailContent, userEmails);
+
+        if (userEmails.length != 0) {
+            const emailContent = await generateEmailBody(courseInfo, emailNotifType);
+            await sendEmail(emailContent, userEmails);
+        }
+
     }
 };

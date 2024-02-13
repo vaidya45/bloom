@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 
 // client side rendering - since we need to handle submit
 
-
 function replaceCourseId(courseId: string): string {
     const REPLACE_VALUE = "REPLACE_VALUE";
     const urlTemplate = `https://app.testudo.umd.edu/soc/search?courseId=${REPLACE_VALUE}&sectionId=&termId=202401&_openSectionsOnly=on&creditCompare=&credits=&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on`;
@@ -76,7 +75,7 @@ const Searchbar = () => {
             if (data) {
                 router.push(`/courses/${data.name}?title=${data.title}`);
             } else {
-                alert("Failed to scrape course information");
+                alert("Failed to scrape course information, verify input!");
             }
 
 
@@ -95,7 +94,7 @@ const Searchbar = () => {
         >
             <input
                 type="text"
-                placeholder="Enter course name or link from Testudo"
+                placeholder="Enter course name or link"
                 className="searchbar-input"
                 value={searchPrompt}
                 onChange={(e) => setSearchPrompt(e.target.value)}

@@ -6,22 +6,20 @@ export async function scrapeTestudoCourse(url: string) {
 
     let browser;
 
-    // Setting up browser
-    if (process.env.NODE_ENV !== 'development') {
-        const chromium = require('@sparticuz/chromium')
-        // Optional: If you'd like to disable webgl, true is the default.
-        chromium.setGraphicsMode = false
-        const puppeteer = require('puppeteer-core')
-        browser = await puppeteer.launch({
-            args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
-            executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-        })
-    } else {
-        const puppeteer = require('puppeteer')
-        browser = await puppeteer.launch({headless: 'new'})
-    }
+    const chromium = require('@sparticuz/chromium')
+    // Optional: If you'd like to disable webgl, true is the default.
+    chromium.setGraphicsMode = false
+    const puppeteer = require('puppeteer-core')
+    browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+    });
+
+    // FOR DEVELOPMENT -- UNCOMMENT!
+    // const puppeteer = require('puppeteer')
+    // browser = await puppeteer.launch({headless: 'new'})
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
@@ -31,7 +29,7 @@ export async function scrapeTestudoCourse(url: string) {
     const courseData = await page.evaluate(() => {
 
         // Getting all courses in the link
-        const courses =  Array.from(document.querySelectorAll(".course"));
+        const courses = Array.from(document.querySelectorAll(".course"));
 
         // Looping through each course
         const data = courses.map((course) => {
@@ -46,9 +44,9 @@ export async function scrapeTestudoCourse(url: string) {
 
 
             // Getting section information
-            const sections =  Array.from(document.querySelectorAll(".section-info-container"));
+            const sections = Array.from(document.querySelectorAll(".section-info-container"));
 
-            
+
 
             // Getting array of JSON for each section
             const sectionData = sections.map((section) => {
@@ -70,7 +68,7 @@ export async function scrapeTestudoCourse(url: string) {
                 const openSeats = openSeatElement ? openSeatElement.innerText.trim() : null;
 
                 //  Waitlist count (includes holdfile)
-                const waitlistElements =  Array.from(section.querySelectorAll(".waitlist-count"));
+                const waitlistElements = Array.from(section.querySelectorAll(".waitlist-count"));
                 // Getting values in an array
                 const waitlistCounts = waitlistElements.map((element) => {
                     return element instanceof HTMLElement ? parseInt(element.innerText.trim()) : -1;
@@ -92,10 +90,10 @@ export async function scrapeTestudoCourse(url: string) {
                 name: name,
                 title: title,
                 sections: sectionData
-            };   
-        }); 
+            };
+        });
 
-        return data;       
+        return data;
     })
 
     // console.log(courseData);

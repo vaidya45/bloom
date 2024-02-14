@@ -13,8 +13,8 @@ const Notification = {
 };
 
 export const generateEmailBody = async (course: EmailCourseInfo, type: NotificationType) => {
-    const shortenedTitle = course.title.length > 20 ? `${course.title.substring(0,20)}...` : course.title;
-      
+    const shortenedTitle = course.title.length > 20 ? `${course.title.substring(0, 20)}...` : course.title;
+
     let subject = '';
     let body = '';
 
@@ -39,14 +39,35 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
                 <p>The Bloom Team 🌸</p>
             `;
             break;
-        
+
+        case Notification.CHANGE_OF_WAITLIST:
+            subject = `Bloom: Testudo Tracker - Open Seat Update for ${course.name}`;
+            body = `
+                <p>We want to inform you about a recent change in the open seats for the course: ${course.name} (${course.title}).</p>
+                <ul>
+                    <li><strong>Section Number:</strong> ${course.sectionNumber}</li>
+                    <li><strong>Previous Waitlist Count:</strong> ${course.prevWaitlistCount}</li>
+                    <li><strong>Updated Waitlist Count:</strong> ${course.waitlistCount}</li>
+                    <li><strong>Previous Open Seats:</strong> ${course.prevOpenCount}</li>
+                    <li><strong>Updated Open Seats:</strong> ${course.openCount}</li>
+                    <li><strong>Holdfile Count:</strong> ${course.holdFileCount == -1 ? "N/A" : course.holdFileCount}</li>
+                </ul>
+                <p>For any questions or concerns, feel free to reach out to us.</p>
+                <p>Happy learning and onward with Bloom! 🌼</p>
+                <p>Best regards,</p>
+                <p>The Bloom Team</p>
+            `;
+            break;
+
         case Notification.CHANGE_OF_WAITLIST:
             subject = `Bloom: Testudo Tracker - Waitlist Update for ${course.name}`;
             body = `
                 <p>We want to inform you about a recent change in the waitlist status for the course: ${course.name} (${course.title}).</p>
                 <ul>
                     <li><strong>Section Number:</strong> ${course.sectionNumber}</li>
+                    <li><strong>Previous Waitlist Count:</strong> ${course.prevWaitlistCount}</li>
                     <li><strong>Updated Waitlist Count:</strong> ${course.waitlistCount}</li>
+                    <li><strong>Previous Open Seats:</strong> ${course.prevOpenCount}</li>
                     <li><strong>Updated Open Seats:</strong> ${course.openCount}</li>
                     <li><strong>Holdfile Count:</strong> ${course.holdFileCount == -1 ? "N/A" : course.holdFileCount}</li>
                 </ul>
@@ -63,8 +84,11 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
                 <p>We want to inform you about a recent change in the holdfile status for the course: ${course.name} (${course.title}).</p>
                 <ul>
                     <li><strong>Section Number:</strong> ${course.sectionNumber}</li>
+                    <li><strong>Previous Holdfile Count:</strong> ${course.prevHoldFileCount == -1 ? "N/A" : course.prevHoldFileCount}</li>
                     <li><strong>Updated Holdfile Count:</strong> ${course.holdFileCount == -1 ? "N/A" : course.holdFileCount}</li>
+                    <li><strong>Previous Waitlist Count:</strong> ${course.prevWaitlistCount}</li>
                     <li><strong>Updated Waitlist Count:</strong> ${course.waitlistCount}</li>
+                    <li><strong>Previous Open Seats:</strong> ${course.prevOpenCount}</li>
                     <li><strong>Updated Open Seats:</strong> ${course.openCount}</li>
                 </ul>
                 <p>If you have any inquiries, please don't hesitate to contact us.</p>
@@ -93,7 +117,7 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
                 <p>Please take necessary actions as soon as possible.</p>
             `;
             break;
-        
+
         default:
             break;
     }
@@ -104,11 +128,11 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
 const transporter = nodemailer.createTransport({
     pool: true,
     service: 'hotmail',
-    port: 2525, 
+    port: 2525,
     auth: {
         user: 'bloom-update@outlook.com',
         pass: process.env.EMAIL_PASSWORD,
-    }, 
+    },
     maxConnections: 1
 });
 
@@ -121,7 +145,7 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
     }
 
     await new Promise((resolve, reject) => {
-        transporter.sendMail(mailOptions,  (error: any, info: any) => {
+        transporter.sendMail(mailOptions, (error: any, info: any) => {
             if (error) {
                 console.log(error);
                 reject(error);
@@ -129,5 +153,5 @@ export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) =>
             console.log("Email Sent: ", info);
             resolve(info);
         });
-    });    
+    });
 }

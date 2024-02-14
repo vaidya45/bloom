@@ -54,6 +54,9 @@ export const sendEmailForSections = async (
             waitlistCount: updatedSection.waitlistHistory[updatedSection.waitlistHistory.length - 1].waitlistCount,
             openCount: updatedSection.openSeatHistory[updatedSection.openSeatHistory.length - 1].openCount,
             holdFileCount: updatedSection.holdFileHistory[updatedSection.holdFileHistory.length - 1].holdFileCount,
+            prevWaitlistCount: updatedSection.waitlistHistory[updatedSection.waitlistHistory.length - 2].waitlistCount,
+            prevOpenCount: updatedSection.openSeatHistory[updatedSection.openSeatHistory.length - 2].openCount,
+            prevHoldFileCount: updatedSection.holdFileHistory[updatedSection.holdFileHistory.length - 2].holdFileCount,
         };
 
         const userEmails = updatedSection.users.map((user: any) => user.email);

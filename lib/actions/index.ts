@@ -146,6 +146,9 @@ export async function addUserEmailToCourse(courseName: string, userEmail: string
                 waitlistCount: (course.sections[sectionIndex]).waitlistHistory[(course.sections[sectionIndex]).waitlistHistory.length - 1].waitlistCount,
                 openCount: (course.sections[sectionIndex]).openSeatHistory[(course.sections[sectionIndex]).openSeatHistory.length - 1].openCount,
                 holdFileCount: (course.sections[sectionIndex]).holdFileHistory[(course.sections[sectionIndex]).holdFileHistory.length - 1].holdFileCount,
+                prevWaitlistCount: -1,
+                prevOpenCount: -1,
+                prevHoldFileCount: -1,
             }
 
             const emailContent = await generateEmailBody(courseInfo, "WELCOME");

@@ -127,7 +127,7 @@ const Searchbar = () => {
         >
             <input
                 type="text"
-                placeholder="Enter course name or link"
+                placeholder="Enter Course Name or Link"
                 className="searchbar-input"
                 value={searchPrompt}
                 onChange={(e) => setSearchPrompt(e.target.value)}

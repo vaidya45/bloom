@@ -160,3 +160,44 @@ export async function addUserEmailToCourse(courseName: string, userEmail: string
         console.log(error);
     }
 }
+
+export async function removeUserEmailToCourse(courseName: string, userEmail: string, sectionNumber: string) {
+    try {
+        const course = await getCourseByName(courseName);
+
+        if (!course) return;
+
+        const sectionIndex = course.sections.findIndex((section: any) => section.sectionId === sectionNumber);
+
+        // Checking if user is present
+        const userIndex = (course.sections[sectionIndex]).users.findIndex((user: any) => user.email === userEmail);
+
+        if (userIndex !== -1) {
+            // Remove user from the section
+            // Splice removes starting at the first index
+            // So we have removed the userIndex
+            (course.sections[sectionIndex]).users.splice(userIndex, 1);
+            await course.save();
+        }
+
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function isCoursePresent(courseName: string): Promise<boolean> {
+    try {
+        connectToDB();
+
+        const courseExists = await Course.exists({ name: courseName });
+
+        if (courseExists === null) {
+            // Handle the case where courseExists is null
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        return false; // Return false if an error occurs
+    }
+}

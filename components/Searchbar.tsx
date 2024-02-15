@@ -1,6 +1,6 @@
 "use client"
 
-import { scrapeAndStoreCourse } from "@/lib/actions";
+import { isCoursePresent, scrapeAndStoreCourse } from "@/lib/actions";
 import { FormEvent, useState } from "react";
 import { useRouter } from 'next/navigation';
 
@@ -15,6 +15,16 @@ const termMap = {
 
 const CURRENT_TERM = termMap.SPRING_SEMESTER;
 const CURRENT_YEAR = "2024";
+
+function getCourseIdFromUrl(url: string): string {
+    const match = url.match(/[?&]courseId=([^&]*)/);
+
+    if (match) {
+        return decodeURIComponent(match[1]);
+    } else {
+        return "";
+    }
+}
 
 function replaceCourseId(courseId: string): string {
     const REPLACE_VALUE = "REPLACE_VALUE";
@@ -101,12 +111,28 @@ const Searchbar = () => {
 
         try {
             setIsLoading(true);
-            // Scrape the course information
-            const data = await scrapeAndStoreCourse(link);
+
+            // Checking if the course is already present in the database
+            const courseName = (getCourseIdFromUrl(link)).toUpperCase();
+            const checkPresent = await isCoursePresent(courseName);
+
+            let data;
+
+            // Course is present - No need to scrape again
+            if (checkPresent) {
+                data = {
+                    name: courseName
+                }
+            } else {
+                // Course is not present - scrape course information
+                data = await scrapeAndStoreCourse(link);
+            }
 
             // Redirect to course details page if course is successfully scraped
             if (data) {
-                router.push(`/courses/${data.name}?title=${data.title}`);
+                // router.push(`/courses/${data.name}?title=${data.title}`);
+                router.push(`/courses/${data.name}`);
+
             } else {
                 alert("Failed to scrape course information, verify input!");
             }

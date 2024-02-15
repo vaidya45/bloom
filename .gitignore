@@ -40,3 +40,6 @@ next-env.d.ts
 
 # For puppeteer
 .cache
+
+# Admin Files (For updating database)
+/app/admin/**

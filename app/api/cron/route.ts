@@ -79,7 +79,7 @@ export async function GET() {
         )
 
         return NextResponse.json({
-            message: 'Ok', data: updatedCourses
+            message: 'Ok', data: updatedCourses.length
         })
 
     } catch (error) {

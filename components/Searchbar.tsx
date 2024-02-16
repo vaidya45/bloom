@@ -13,7 +13,7 @@ const termMap = {
     WINTER_SEMESTER: "12"
 };
 
-const CURRENT_TERM = termMap.SPRING_SEMESTER;
+const CURRENT_TERM = termMap.FALL_SEMESTER;
 const CURRENT_YEAR = "2024";
 
 function getCourseIdFromUrl(url: string): string {

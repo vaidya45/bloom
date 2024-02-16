@@ -37,6 +37,7 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
                 <p>Happy learning! 📚</p>
                 <p>Best regards,</p>
                 <p>The Bloom Team 🌸</p>
+                <p>If you wish to unsubscribe from these notifications, click <a href="http://www.course.me/unsubscribe?name=${course.name}&section=${course.sectionNumber}">here</a>.</p>
             `;
             break;
 

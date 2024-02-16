@@ -161,7 +161,7 @@ export async function addUserEmailToCourse(courseName: string, userEmail: string
     }
 }
 
-export async function removeUserEmailToCourse(courseName: string, userEmail: string, sectionNumber: string) {
+export async function removeUserEmailFromCourse(courseName: string, userEmail: string, sectionNumber: string) {
     try {
         const course = await getCourseByName(courseName);
 

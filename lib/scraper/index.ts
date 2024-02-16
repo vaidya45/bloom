@@ -1,104 +1,83 @@
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+const cheerio = require('cheerio');
+const axios = require('axios');
+interface SectionData {
+    instructor: string;
+    sectionId: string;
+    totalSeats: string;
+    openSeats: string;
+    waitlist: number;
+    holdfile: number;
+}
 
-export async function scrapeTestudoCourse(url: string) {
-    if (!url) return;
+interface CourseData {
+    name: string;
+    title: string;
+    sections: SectionData[];
+}
 
-    let browser;
+export async function scrapeTestudoCourse(url: string): Promise<CourseData[]> {
+    if (!url) return [];
 
-    const chromium = require('@sparticuz/chromium')
-    // Optional: If you'd like to disable webgl, true is the default.
-    chromium.setGraphicsMode = false
-    const puppeteer = require('puppeteer-core')
-    browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-    });
+    try {
+        const response = await axios.get(url);
+        const $ = cheerio.load(response.data);
 
-    // FOR DEVELOPMENT -- UNCOMMENT!
-    // const puppeteer = require('puppeteer')
-    // browser = await puppeteer.launch({headless: 'new'})
+        const courses: CourseData[] = [];
 
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto(url);
+        $('.course').each((_: any, course: any) => {
+            const nameElement = $(course).find('.course-id');
+            const name = nameElement.text().trim();
 
-    // Fetching data
-    const courseData = await page.evaluate(() => {
+            const titleElement = $(course).find('.course-title');
+            const title = titleElement.text().trim();
 
-        // Getting all courses in the link
-        const courses = Array.from(document.querySelectorAll(".course"));
+            const sections: SectionData[] = [];
 
-        // Looping through each course
-        const data = courses.map((course) => {
+            $(course).find('.section-info-container').each((_: any, section: any) => {
+                const instructorElement = $(section).find('.section-instructor');
+                const instructor = instructorElement.text().trim();
 
-            // Getting name
-            const nameElement = course.querySelector(".course-id") as HTMLElement;
-            const name = nameElement ? nameElement.innerText.trim() : null;
+                const sectionElement = $(section).find('.section-id');
+                const sectionId = sectionElement.text().trim();
 
-            // Getting title
-            const titleElement = course.querySelector(".course-title") as HTMLElement;
-            const title = titleElement ? titleElement.innerText.trim() : null;
+                const totalSeatElement = $(section).find('.total-seats-count');
+                const totalSeats = totalSeatElement.text().trim();
 
+                const openSeatElement = $(section).find('.open-seats-count');
+                const openSeats = openSeatElement.text().trim();
 
-            // Getting section information
-            const sections = Array.from(document.querySelectorAll(".section-info-container"));
-
-
-
-            // Getting array of JSON for each section
-            const sectionData = sections.map((section) => {
-
-                // Instructor name
-                const instructorElement = section.querySelector(".section-instructor") as HTMLElement;
-                const instructor = instructorElement ? instructorElement.innerText.trim() : null;
-
-                // Section number
-                const sectionElement = section.querySelector(".section-id") as HTMLElement;
-                const sectionId = sectionElement ? sectionElement.innerText.trim() : null;
-
-                // Total Seats count
-                const totalSeatElement = section.querySelector(".total-seats-count") as HTMLElement;
-                const totalSeats = totalSeatElement ? totalSeatElement.innerText.trim() : null;
-
-                // Open Seats count
-                const openSeatElement = section.querySelector(".open-seats-count") as HTMLElement;
-                const openSeats = openSeatElement ? openSeatElement.innerText.trim() : null;
-
-                //  Waitlist count (includes holdfile)
-                const waitlistElements = Array.from(section.querySelectorAll(".waitlist-count"));
-                // Getting values in an array
-                const waitlistCounts = waitlistElements.map((element) => {
-                    return element instanceof HTMLElement ? parseInt(element.innerText.trim()) : -1;
+                const waitlistElements = $(section).find('.waitlist-count');
+                const waitlistCounts: number[] = [];
+                waitlistElements.each((_: any, waitlistElement: any) => {
+                    const count = parseInt($(waitlistElement).text().trim());
+                    waitlistCounts.push(isNaN(count) ? -1 : count);
                 });
 
-                // Information for section
-                return {
+                const sectionData: SectionData = {
                     instructor: instructor,
                     sectionId: sectionId,
                     totalSeats: totalSeats,
                     openSeats: openSeats,
                     waitlist: waitlistCounts[0],
-                    holdfile: ((waitlistCounts).length == 2) ? waitlistCounts[1] : -1
-                }
+                    holdfile: waitlistCounts.length === 2 ? waitlistCounts[1] : -1
+                };
+
+                sections.push(sectionData);
             });
 
-            // return json
-            return {
+            const courseData: CourseData = {
                 name: name,
                 title: title,
-                sections: sectionData
+                sections: sections
             };
+
+            courses.push(courseData);
         });
 
-        return data;
-    })
+        return courses;
 
-    // console.log(courseData);
-
-    await browser.close();
-
-    return courseData;
+    } catch (error) {
+        console.error('Error scraping:', error);
+        return [];
+    }
 }

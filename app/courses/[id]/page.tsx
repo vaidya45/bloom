@@ -8,6 +8,18 @@ type Props = {
     params: { id: string }
 };
 
+function convertToEST(date: any) {
+    // EST
+    const offset = -5.0;
+
+    const clientDate = new Date(date);
+    const utc = clientDate.getTime() + (clientDate.getTimezoneOffset() * 60000);
+
+    const serverDate = new Date(utc + (3600000 * offset));
+
+    return serverDate.toLocaleString();
+}
+
 const CourseDetails = async (url: Props) => {
     const name = url.params.id;
     // console.log(url); -- look for search params
@@ -20,7 +32,7 @@ const CourseDetails = async (url: Props) => {
             <div>
                 <h1 className="text-[28px] text-secondary font-semibold">{course.name}</h1>
                 <h1 className="text-[24px] text-secondary font-semibold italic">{course.title}</h1>
-                <h1 className="text-[16px] text-secondary font italic">{course.sections.length > 0 && course.sections[0].waitlistHistory.length > 0 ? `(Last Updated: ${new Date(course.sections[0].waitlistHistory[course.sections[0].waitlistHistory.length - 1].date).toUTCString().split(', ')[1]})` : ''}</h1>
+                <h1 className="text-[16px] text-secondary font italic">{course.sections.length > 0 && course.sections[0].waitlistHistory.length > 0 ? `(Last Updated: ${convertToEST(course.sections[0].waitlistHistory[course.sections[0].waitlistHistory.length - 1].date)})` : ''}</h1>
             </div>
             {course.sections.map((section: any, index: any) => (
                 <div key={index} className="section-box">

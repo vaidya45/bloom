@@ -8,78 +8,98 @@ export const maxDuration = 10; // 10 seconds
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+const CONSTANT_ID = "65d0234b4d068e1e8252138c";
+
 export async function GET() {
     try {
         connectToDB();
 
+        // Added idx manually in the database
+        const idxObj = await Course.findOne({ _id: CONSTANT_ID });
+        const indexString = idxObj.INDEX_VALUE;
+        let index = parseInt(indexString);
+
         // Get all courses stored in database
         const courses = await Course.find({});
 
-        if (!courses) throw new Error("No Courses Found!");
+        // If index out of bounds, start from beginning
+        if (index >= courses.length) {
+            index = 0;
+        }
 
         // 1. Scrape and update course information
-        const updatedCourses = await Promise.all(
-            courses.map(async (currentCourse) => {
-                const scrapedCourse = await scrapeTestudoCourse(currentCourse.link);
 
-                if (!scrapedCourse) throw new Error("No Course Found when scraping");
+        const currentCourse = courses[index];
 
-                // ONLY WORKING WITH FIRST ELEMENT IN THE ARRAY
-                let courseData = scrapedCourse[0];
+        // Reached constant value
+        if (currentCourse._id === CONSTANT_ID) {
+            index++;
 
-                // Iterate through sections array
-                let updatedSections = currentCourse.sections.map((section: any) => {
+            if (index >= courses.length) {
+                index = 0;
+            }
+        }
 
-                    // Find matching section by sectionId
-                    const matchingSection = courseData.sections.find((newSection: any) => newSection.sectionId === section.sectionId);
-                    if (matchingSection) {
-                        // Section exists, update waitlist, holdfile
-                        section.waitlistHistory.push({ waitlistCount: matchingSection.waitlist, date: new Date() });
-                        section.openSeatHistory.push({ openCount: matchingSection.openSeats, date: new Date() });
-                        section.holdFileHistory.push({ holdFileCount: matchingSection.holdfile, date: new Date() });
-                        return section;
-                    } else {
-                        // Section doesn't exist, return existing section
-                        return section;
-                    }
+        const scrapedCourse = await scrapeTestudoCourse(currentCourse.link);
+
+        if (!scrapedCourse) throw new Error("No Course Found when scraping");
+
+        // ONLY WORKING WITH FIRST ELEMENT IN THE ARRAY
+        let courseData = scrapedCourse[0];
+
+        // Iterate through sections array
+        let updatedSections = currentCourse.sections.map((section: any) => {
+
+            // Find matching section by sectionId
+            const matchingSection = courseData.sections.find((newSection: any) => newSection.sectionId === section.sectionId);
+            if (matchingSection) {
+                // Section exists, update waitlist, holdfile
+                section.waitlistHistory.push({ waitlistCount: matchingSection.waitlist, date: new Date() });
+                section.openSeatHistory.push({ openCount: matchingSection.openSeats, date: new Date() });
+                section.holdFileHistory.push({ holdFileCount: matchingSection.holdfile, date: new Date() });
+                return section;
+            } else {
+                // Section doesn't exist, return existing section
+                return section;
+            }
+        });
+
+        // Add new sections to the existing course
+        courseData.sections.forEach((newSection: any) => {
+            const existingSection = currentCourse.sections.find((section: any) => section.sectionId === newSection.sectionId);
+            // Does not exist in the existing section
+            if (!existingSection) {
+                updatedSections.push({
+                    instructor: newSection.instructor,
+                    sectionId: newSection.sectionId,
+                    totalSeats: newSection.totalSeats,
+                    waitlistHistory: [{ waitlistCount: newSection.waitlist, date: new Date() }],
+                    openSeatHistory: [{ openCount: newSection.openSeats, date: new Date() }],
+                    holdFileHistory: [{ holdFileCount: newSection.holdfile, date: new Date() }]
                 });
+            }
+        });
 
-                // Add new sections to the existing course
-                courseData.sections.forEach((newSection: any) => {
-                    const existingSection = currentCourse.sections.find((section: any) => section.sectionId === newSection.sectionId);
-                    // Does not exist in the existing section
-                    if (!existingSection) {
-                        updatedSections.push({
-                            instructor: newSection.instructor,
-                            sectionId: newSection.sectionId,
-                            totalSeats: newSection.totalSeats,
-                            waitlistHistory: [{ waitlistCount: newSection.waitlist, date: new Date() }],
-                            openSeatHistory: [{ openCount: newSection.openSeats, date: new Date() }],
-                            holdFileHistory: [{ holdFileCount: newSection.holdfile, date: new Date() }]
-                        });
-                    }
-                });
+        // Remove sections not found in the updated scraped data
+        updatedSections = updatedSections.filter((section: any) => {
+            const matchingSection = courseData.sections.find((newSection: any) => newSection.sectionId === section.sectionId);
+            return matchingSection !== undefined; // Keep existing section if it's found in the scraped data
+        });
 
-                // Remove sections not found in the updated scraped data
-                updatedSections = updatedSections.filter((section: any) => {
-                    const matchingSection = courseData.sections.find((newSection: any) => newSection.sectionId === section.sectionId);
-                    return matchingSection !== undefined; // Keep existing section if it's found in the scraped data
-                });
+        // Update the course document with the updated sections
+        currentCourse.sections = updatedSections;
+        await currentCourse.save();
 
-                // Update the course document with the updated sections
-                currentCourse.sections = updatedSections;
-                await currentCourse.save();
+        // I need to compare what has changed based on the updated course information (Getting status for email to send)
+        await sendEmailForSections(currentCourse);
 
-                // I need to compare what has changed based on the updated course information (Getting status for email to send)
-                await sendEmailForSections(currentCourse);
+        // Update the index value in the database
+        idxObj.INDEX_VALUE = index.toString();
+        await idxObj.save();
 
-                // This is the updated information for current course
-                return currentCourse;
-            })
-        )
-
+        // Updating course information one by one
         return NextResponse.json({
-            message: 'Ok', data: updatedCourses.length
+            message: 'Ok', data: currentCourse.name
         })
 
     } catch (error) {

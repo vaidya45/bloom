@@ -20,7 +20,7 @@ const CourseDetails = async (url: Props) => {
             <div>
                 <h1 className="text-[28px] text-secondary font-semibold">{course.name}</h1>
                 <h1 className="text-[24px] text-secondary font-semibold italic">{course.title}</h1>
-                <h1 className="text-[16px] text-secondary font italic">{course.sections.length > 0 ? '(Last Updated: ' + (new Date(new Date(course.sections[0].waitlistHistory[course.sections[0].waitlistHistory.length - 1].date).toLocaleString('en-US', { timeZone: 'America/New_York' })).toLocaleString('en-US', { timeZone: 'America/New_York' })) + ')' : ''}</h1>
+                <h1 className="text-[16px] text-secondary font italic">{course.sections.length > 0 && course.sections[0].waitlistHistory.length > 0 ? `(Last Updated: ${new Date(course.sections[0].waitlistHistory[course.sections[0].waitlistHistory.length - 1].date).toUTCString().split(', ')[1]})` : ''}</h1>
             </div>
             {course.sections.map((section: any, index: any) => (
                 <div key={index} className="section-box">

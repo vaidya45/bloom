@@ -1,4 +1,4 @@
-import Course from "@/lib/models/course.model";
+import Course, { AppData } from "@/lib/models/course.model";
 import { scrapeTestudoCourse } from "@/lib/scraper";
 import { connectToDB } from "@/lib/scraper/mongoose"
 import { sendEmailForSections } from "@/lib/utils";
@@ -8,16 +8,13 @@ export const maxDuration = 10; // 10 seconds
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-const CONSTANT_ID = "65d0234b4d068e1e8252138c";
-
 export async function GET() {
     try {
         connectToDB();
 
-        // Added idx manually in the database
-        const idxObj = await Course.findOne({ _id: CONSTANT_ID });
-        const indexString = idxObj.INDEX_VALUE;
-        let index = parseInt(indexString);
+        // Getting index value
+        const idxObj = await AppData.findOne({ name: "index" });
+        let index = idxObj.value;
 
         // Get all courses stored in database
         const courses = await Course.find({});
@@ -30,16 +27,6 @@ export async function GET() {
         // 1. Scrape and update course information
 
         const currentCourse = courses[index];
-
-        // Reached constant value
-        if (currentCourse._id === CONSTANT_ID) {
-            index++;
-
-            if (index >= courses.length) {
-                index = 0;
-            }
-        }
-
         const scrapedCourse = await scrapeTestudoCourse(currentCourse.link);
 
         if (!scrapedCourse) throw new Error("No Course Found when scraping");
@@ -94,7 +81,7 @@ export async function GET() {
         await sendEmailForSections(currentCourse);
 
         // Update the index value in the database
-        idxObj.INDEX_VALUE = index.toString();
+        idxObj.value = index + 1;
         await idxObj.save();
 
         // Updating course information one by one

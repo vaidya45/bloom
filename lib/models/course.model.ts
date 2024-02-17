@@ -4,7 +4,6 @@ const courseSchema = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
     link: { type: String, required: true },
     title: { type: String, required: true },
-    INDEX_VALUE: { type: String, required: false },
     sections: [
         {
             sectionId: { type: String, required: true },
@@ -36,6 +35,12 @@ const courseSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
+const appDataSchema = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    value: { type: Number, required: true }
+});
+
 const Course = mongoose.models.Course || mongoose.model('Course', courseSchema);
+export const AppData = mongoose.models.AppData || mongoose.model('AppData', appDataSchema);
 
 export default Course;

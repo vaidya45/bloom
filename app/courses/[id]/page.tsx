@@ -5,7 +5,7 @@ import React from 'react';
 
 // Can add search params here
 type Props = {
-    params: {id: string}
+    params: { id: string }
 };
 
 const CourseDetails = async (url: Props) => {
@@ -20,6 +20,7 @@ const CourseDetails = async (url: Props) => {
             <div>
                 <h1 className="text-[28px] text-secondary font-semibold">{course.name}</h1>
                 <h1 className="text-[24px] text-secondary font-semibold italic">{course.title}</h1>
+                <h1 className="text-[16px] text-secondary font italic">{course.sections.length > 0 ? '(Last Updated: ' + (new Date(new Date(course.sections[0].waitlistHistory[course.sections[0].waitlistHistory.length - 1].date).toLocaleString('en-US', { timeZone: 'America/New_York' })).toLocaleString('en-US', { timeZone: 'America/New_York' })) + ')' : ''}</h1>
             </div>
             {course.sections.map((section: any, index: any) => (
                 <div key={index} className="section-box">
@@ -32,7 +33,7 @@ const CourseDetails = async (url: Props) => {
                         <p className="text-[18px]">Holdfile Seats: {section.holdFileHistory[section.holdFileHistory.length - 1].holdFileCount !== -1 ? section.holdFileHistory[section.holdFileHistory.length - 1].holdFileCount : "N/A"}</p>
                     </div>
                     <div className='pt-5'>
-                        <Modal courseName={course.name} sectionNumber={section.sectionId}/>
+                        <Modal courseName={course.name} sectionNumber={section.sectionId} />
                     </div>
                 </div>
             ))}

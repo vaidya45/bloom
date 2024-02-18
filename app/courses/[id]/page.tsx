@@ -2,6 +2,7 @@ import Modal from '@/components/Modal';
 import { getCourseByName } from '@/lib/actions';
 import { redirect } from 'next/navigation';
 import React from 'react';
+import Image from 'next/image';
 
 // Can add search params here
 type Props = {
@@ -44,8 +45,26 @@ const CourseDetails = async (url: Props) => {
                         <p className="text-[18px]">Waitlist Seats: {section.waitlistHistory[section.waitlistHistory.length - 1].waitlistCount}</p>
                         <p className="text-[18px]">Holdfile Seats: {section.holdFileHistory[section.holdFileHistory.length - 1].holdFileCount !== -1 ? section.holdFileHistory[section.holdFileHistory.length - 1].holdFileCount : "N/A"}</p>
                     </div>
-                    <div className='pt-5'>
-                        <Modal courseName={course.name} sectionNumber={section.sectionId} />
+                    <div className="flex items-center">
+                        <div className='mr-4 pt-5'>
+                            <Modal courseName={course.name} sectionNumber={section.sectionId} />
+                        </div>
+
+                        {/* Showing count if people are tracking it */}
+                        {
+                            section.users.length > 0 &&
+                            <div className="flex items-center" style={{ marginTop: "22px" }}>
+                                <div className="mr-2">
+                                    <Image
+                                        src="/assets/icons/eye.svg"
+                                        width={30}
+                                        height={30}
+                                        alt="Logo"
+                                    />
+                                </div>
+                                <div className="text-[18px]">{section.users.length}</div>
+                            </div>
+                        }
                     </div>
                 </div>
             ))}

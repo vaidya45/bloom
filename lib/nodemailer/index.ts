@@ -20,10 +20,8 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
 
     switch (type) {
         case Notification.WELCOME:
-            subject = 'Welcome to Bloom: Testudo Course Tracker 🌼';
+            subject = `Bloom: Confirmation - Tracking ${course.name}, Section: ${course.sectionNumber}`;
             body = `
-                <p>Welcome to Bloom: Testudo Course Tracker!</p>
-                <p>We're thrilled to welcome you aboard as a member of our community. 🎉</p>
                 <p>You've expressed interest in the course "${course.title}" (${course.name}) with section number ${course.sectionNumber}. Here's some information about it:</p>
                 <ul>
                     <li><strong>Course Name:</strong> ${course.name}</li>
@@ -42,7 +40,7 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
             break;
 
         case Notification.CHANGE_OF_WAITLIST:
-            subject = `Bloom: Testudo Tracker - Open Seat Update for ${course.name}`;
+            subject = `Bloom: Waitlist Update for ${course.name}`;
             body = `
                 <p>We want to inform you about a recent change in the open seats for the course: ${course.name} (${course.title}).</p>
                 <ul>
@@ -57,25 +55,7 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
                 <p>Happy learning and onward with Bloom! 🌼</p>
                 <p>Best regards,</p>
                 <p>The Bloom Team</p>
-            `;
-            break;
-
-        case Notification.CHANGE_OF_WAITLIST:
-            subject = `Bloom: Testudo Tracker - Waitlist Update for ${course.name}`;
-            body = `
-                <p>We want to inform you about a recent change in the waitlist status for the course: ${course.name} (${course.title}).</p>
-                <ul>
-                    <li><strong>Section Number:</strong> ${course.sectionNumber}</li>
-                    <li><strong>Previous Waitlist Count:</strong> ${course.prevWaitlistCount}</li>
-                    <li><strong>Updated Waitlist Count:</strong> ${course.waitlistCount}</li>
-                    <li><strong>Previous Open Seats:</strong> ${course.prevOpenCount}</li>
-                    <li><strong>Updated Open Seats:</strong> ${course.openCount}</li>
-                    <li><strong>Holdfile Count:</strong> ${course.holdFileCount == -1 ? "N/A" : course.holdFileCount}</li>
-                </ul>
-                <p>For any questions or concerns, feel free to reach out to us.</p>
-                <p>Happy learning and onward with Bloom! 🌼</p>
-                <p>Best regards,</p>
-                <p>The Bloom Team</p>
+                <p>If you wish to unsubscribe from these notifications, click <a href="https://www.coursebloom.me/unsubscribe/?name=${course.name}&section=${course.sectionNumber}">here</a>.</p>
             `;
             break;
 
@@ -96,6 +76,7 @@ export const generateEmailBody = async (course: EmailCourseInfo, type: Notificat
                 <p>Happy learning and onward with Bloom! 🌼</p>
                 <p>Best regards,</p>
                 <p>The Bloom Team</p>
+                <p>If you wish to unsubscribe from these notifications, click <a href="https://www.coursebloom.me/unsubscribe/?name=${course.name}&section=${course.sectionNumber}">here</a>.</p>
             `;
             break;
 

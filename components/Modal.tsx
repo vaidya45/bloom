@@ -5,16 +5,18 @@ import { useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import Image from 'next/image'
 import { addUserEmailToCourse } from '@/lib/actions'
+import { useRouter } from 'next/navigation'
 
 interface Props {
     courseName: string,
     sectionNumber: string
 }
 
-const Modal = ({ courseName, sectionNumber}: Props) => {
+const Modal = ({ courseName, sectionNumber }: Props) => {
     let [isOpen, setIsOpen] = useState(false);
     let [isSubmitting, setIsSubmitting] = useState(false);
     let [email, setEmail] = useState('');
+    const router = useRouter();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         // Don't want to reload the page
@@ -26,6 +28,7 @@ const Modal = ({ courseName, sectionNumber}: Props) => {
         setIsSubmitting(false);
         setEmail('');
         closeModal();
+        router.refresh();
     };
 
     const openModal = () => setIsOpen(true);
@@ -53,7 +56,7 @@ const Modal = ({ courseName, sectionNumber}: Props) => {
                         </Transition.Child>
 
                         {/* Centering the modal on the screen */}
-                        <span 
+                        <span
                             className='inline-block h-screen align-middle'
                             aria-hidden='true'
                         />
@@ -71,21 +74,21 @@ const Modal = ({ courseName, sectionNumber}: Props) => {
                                 <div className='flex flex-col'>
                                     <div className='flex justify-between'>
                                         <div className='p-3 rounded-10'>
-                                            <Image 
+                                            <Image
                                                 src="/assets/icons/bloom.svg"
                                                 alt="logo"
                                                 width={28}
                                                 height={28}
                                             />
                                         </div>
-                                            <Image 
-                                                src="/assets/icons/x-close.svg"
-                                                alt="close"
-                                                width={24}
-                                                height={24}
-                                                className='cursor-pointer'
-                                                onClick={closeModal}
-                                            />
+                                        <Image
+                                            src="/assets/icons/x-close.svg"
+                                            alt="close"
+                                            width={24}
+                                            height={24}
+                                            className='cursor-pointer'
+                                            onClick={closeModal}
+                                        />
                                     </div>
 
                                     <h4 className='dialog-head_text'>
@@ -103,21 +106,21 @@ const Modal = ({ courseName, sectionNumber}: Props) => {
                                         Email Address
                                     </label>
                                     <div className='dialog-input_container'>
-                                        <Image 
+                                        <Image
                                             src="/assets/icons/mail.svg"
                                             alt="mail"
                                             width={18}
                                             height={18}
-                                         />
-                                         <input
+                                        />
+                                        <input
                                             required
                                             type='email'
                                             id='email'
                                             value={email}
-                                            onChange={( e) => setEmail(e.target.value)}
+                                            onChange={(e) => setEmail(e.target.value)}
                                             placeholder='Enter your email address'
                                             className='dialog-input'
-                                         />
+                                        />
                                     </div>
 
                                     <button type='submit'

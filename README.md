@@ -1,6 +1,18 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Deployed Link
+
+The project is live at [https://www.coursebloom.me/](https://www.coursebloom.me/)
+
+## About Bloom
+
+Bloom is a platform designed to help University of Maryland students track course seat availability in real time. It was created to simplify the process of monitoring course openings, eliminating the need for constant manual checks.
+
+## Testing a Course (Existing in the Database)
+
+To test the functionality, input "CMSC451" into the search field to check seat availability.
 
 ## Getting Started
+
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 First, run the development server:
 
